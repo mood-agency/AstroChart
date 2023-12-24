@@ -1,6 +1,6 @@
-import type { Points } from './radix'
-import type { AspectData, Settings } from './settings'
-import { radiansToDegree } from './utils'
+import type {Points} from './radix'
+import type {AspectData, Settings} from './settings'
+import {radiansToDegree} from './utils'
 
 export interface FormedAspect {
   point: {
@@ -16,30 +16,47 @@ export interface FormedAspect {
     degree: number
     color: string
     orbit: number
+    lineStyle: string
   }
   precision: string
 }
 
+// Long red lines = oppositions, a 180 degree aspect.
+// Shorter red lines = squares, a 90 degree aspect.
+// Longer blue lines = trines, a 120 degree aspect
+// Shorter blue lines = sextiles, a 60 degree aspect
+// Dashed green line = quincunxes, a150 degree aspect
+// Short dotted green lines = semisextiles, a 30 degree aspect (related to the quincunx, not the sextile)
+// Short dotted blue lines = semisquares, a 45 degree aspect
+// Long dotted blue line = sesquisquares, a 135 degree aspect.
+
 const DEFAULT_ASPECTS = {
-  conjunction: { degree: 0, orbit: 10, color: 'transparent' },
-  square: { degree: 90, orbit: 8, color: '#FF4500' },
-  trine: { degree: 120, orbit: 8, color: '#27AE60' },
-  opposition: { degree: 180, orbit: 10, color: '#27AE60' }
+  opposition: {degree: 180, orbit: 10, color: '#ff0000', lineStyle: 'solid'}, // Long red lines
+  square: {degree: 90, orbit: 8, color: '#ff0000', lineStyle: 'short'}, // Shorter red lines
+  trine: {degree: 120, orbit: 8, color: '#0000ff', lineStyle: 'solid'}, // Longer blue lines
+  sextile: {degree: 60, orbit: 8, color: '#0000ff', lineStyle: 'short'}, // Shorter blue lines
+  quincunx: {degree: 150, orbit: 8, color: '#00ff00', lineStyle: '5,5'}, // Dashed green line
+  semisextile: {degree: 30, orbit: 8, color: '#00ff00', lineStyle: '2,2'}, // Short dotted green lines
+  semisquare: {degree: 45, orbit: 8, color: '#0000ff', lineStyle: '1,1'}, // Short dotted blue lines
+  sesquisquare: {degree: 135, orbit: 8, color: '#0000ff', lineStyle: '6,2'}, // Long dotted blue line
+  conjunction: {degree: 0, orbit: 10, color: 'transparent', lineStyle: 'dashed'} // Example entry for conjunction
 }
+
 /**
-   * Aspects calculator
-   *
-   * @class
-   * @public
-   * @constructor
-   * @param {AspectPoints} points; {"Sun":[0], "Moon":[90], "Neptune":[120], "As":[30]}
-   * @param {Object | null } settings
-   */
+ * Aspects calculator
+ *
+ * @class
+ * @public
+ * @constructor
+ * @param {AspectPoints} points; {"Sun":[0], "Moon":[90], "Neptune":[120], "As":[30]}
+ * @param {Object | null } settings
+ */
 class AspectCalculator {
   settings: Partial<Settings>
   toPoints: Points
   context: this
-  constructor (toPoints: Points, settings?: Partial<Settings>) {
+
+  constructor(toPoints: Points, settings?: Partial<Settings>) {
     if (toPoints == null) {
       throw new Error('Param \'toPoint\' must not be empty.')
     }
@@ -58,7 +75,7 @@ class AspectCalculator {
    *
    * @return {Object}
    */
-  getToPoints (): Points {
+  getToPoints(): Points {
     return this.toPoints
   }
 
@@ -68,11 +85,11 @@ class AspectCalculator {
    * In radix calculation is the param "points" the same as param "toPoints" in constructor
    * , but without special points such as: As,Ds, Mc, Ic, ...
    *
-   * @param {Object} points; {"Sun":[0], "Moon":[90]}
    *
    * @return {Array<Object>} [{"aspect":{"name":"conjunction", "degree":120}"", "point":{"name":"Sun", "position":123}, "toPoint":{"name":"Moon", "position":345}, "precision":0.5}]]
+   * @param points
    */
-  radix (points: Points): FormedAspect[] {
+  radix(points: Points): FormedAspect[] {
     if (points == null) {
       return []
     }
@@ -88,9 +105,15 @@ class AspectCalculator {
                 if (this.hasAspect(points[point][0], this.toPoints[toPoint][0], this.settings.ASPECTS[aspect])) {
                   aspects.push(
                     {
-                      aspect: { name: aspect, degree: this.settings.ASPECTS[aspect].degree, orbit: this.settings.ASPECTS[aspect].orbit, color: this.settings.ASPECTS[aspect].color },
-                      point: { name: point, position: points[point][0] },
-                      toPoint: { name: toPoint, position: this.toPoints[toPoint][0] },
+                      aspect: {
+                        name: aspect,
+                        degree: this.settings.ASPECTS[aspect].degree,
+                        orbit: this.settings.ASPECTS[aspect].orbit,
+                        color: this.settings.ASPECTS[aspect].color,
+                        lineStyle: this.settings.ASPECTS[aspect].lineStyle
+                      },
+                      point: {name: point, position: points[point][0]},
+                      toPoint: {name: toPoint, position: this.toPoints[toPoint][0]},
                       precision: this.calcPrecision(points[point][0], this.toPoints[toPoint][0], this.settings.ASPECTS[aspect].degree).toFixed(4)
                     }
                   )
@@ -111,7 +134,7 @@ class AspectCalculator {
    * @param {Object} points - transiting points; {"Sun":[0, 1], "Uranus":[90, -1], "NAME":[ANGLE, SPEED]};
    * @return {Array<Object>} [{"aspect":{"name":"conjunction", "degree":120}"", "point":{"name":"Sun", "position":123}, "toPoint":{"name":"Moon", "position":345}, "precision":0.5}]]
    */
-  transit (points: Points): FormedAspect[] {
+  transit(points: Points): FormedAspect[] {
     if (points == null) {
       return []
     }
@@ -139,9 +162,15 @@ class AspectCalculator {
 
                 aspects.push(
                   {
-                    aspect: { name: aspect, degree: this.settings.ASPECTS[aspect].degree, orbit: this.settings.ASPECTS[aspect].orbit, color: this.settings.ASPECTS[aspect].color },
-                    point: { name: point, position: points[point][0] },
-                    toPoint: { name: toPoint, position: this.toPoints[toPoint][0] },
+                    aspect: {
+                      name: aspect,
+                      degree: this.settings.ASPECTS[aspect].degree,
+                      orbit: this.settings.ASPECTS[aspect].orbit,
+                      color: this.settings.ASPECTS[aspect].color,
+                      lineStyle: this.settings.ASPECTS[aspect].lineStyle
+                    },
+                    point: {name: point, position: points[point][0]},
+                    toPoint: {name: toPoint, position: this.toPoints[toPoint][0]},
                     precision: precision.toFixed(4)
                   }
                 )
@@ -161,7 +190,7 @@ class AspectCalculator {
    * @param {double} toPoint
    * @param {Array} aspects; [DEGREE, ORBIT]
    */
-  hasAspect (point: number, toPoint: number, aspect: AspectData): boolean {
+  hasAspect(point: number, toPoint: number, aspect: AspectData): boolean {
     let result = false
 
     let gap = Math.abs(point - toPoint)
@@ -180,13 +209,15 @@ class AspectCalculator {
     return result
   }
 
-  /*
-  * @private
-   * @param {Object} pointAngle
-   * @param {Object} toPointAngle
-   * @param {double} aspectDegree;
+  /**
+   * Calculates the precision between two points and an aspect.
+   *
+   * @param {number} point - The starting point.
+   * @param {number} toPoint - The ending point.
+   * @param {number} aspect - The target aspect.
+   * @return {number} - The precision between the two points and the aspect.
    */
-  calcPrecision (point: number, toPoint: number, aspect: number): number {
+  calcPrecision(point: number, toPoint: number, aspect: number): number {
     let gap = Math.abs(point - toPoint)
 
     if (gap > radiansToDegree(Math.PI)) {
@@ -195,20 +226,13 @@ class AspectCalculator {
     return Math.abs(gap - aspect)
   }
 
-  /*
-   * Calculate direction of aspect
-   * whether the transiting planet is approaching or is falling
-   * @private
+  /**
    *
-   * //TODO
-   * This method is tested, and for tests gives the right results.
-   * But the code is totally unclear. It needs to be rewritten.
-   * @param {double} aspect - aspect degree; for example 90.
-   * @param {double} toPoint - angle of standing point
-   * @param {double} point - angle of transiting planet
-   * @return {boolean}
+   * @param aspect
+   * @param toPoint
+   * @param point
    */
-  isTransitPointApproachingToAspect (aspect: number, toPoint: number, point: number): boolean {
+  isTransitPointApproachingToAspect(aspect: number, toPoint: number, point: number): boolean {
     if ((point - toPoint) > 0) {
       if ((point - toPoint) > radiansToDegree(Math.PI)) {
         point = (point + aspect) % radiansToDegree(2 * Math.PI)
@@ -243,7 +267,7 @@ class AspectCalculator {
    * @param {Object} a
    * @param {Object} b
    */
-  compareAspectsByPrecision (a: FormedAspect, b: FormedAspect): number {
+  compareAspectsByPrecision(a: FormedAspect, b: FormedAspect): number {
     return parseFloat(a.precision) - parseFloat(b.precision)
   }
 }

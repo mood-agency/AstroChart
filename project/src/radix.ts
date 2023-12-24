@@ -1,39 +1,49 @@
 import Zodiac from './zodiac'
+import type {FormedAspect} from './aspect'
 import AspectCalculator from './aspect'
-import type { FormedAspect } from './aspect'
 import Transit from './transit'
 import {
+  assemble,
+  getDashedLinesPositions,
+  getDescriptionPosition,
+  getEmptyWrapper,
+  getPointPosition,
+  getRulerPositions,
+  radiansToDegree,
   validate
-  , radiansToDegree
-  , getEmptyWrapper
-  , getPointPosition
-  , getRulerPositions
-  , getDescriptionPosition
-  , getDashedLinesPositions
-  , assemble
 } from './utils'
 import type SVG from './svg'
-import type { Settings } from './settings'
+import type {Settings} from './settings'
 
 export type Points = Record<string, number[]>
-export interface LocatedPoint { name: string; x: number; y: number; r: number; angle: number; pointer?: number; index?: number }
+
+export interface LocatedPoint {
+  name: string
+  x: number
+  y: number
+  r: number
+  angle: number
+  pointer?: number
+  index?: number
+}
+
 export interface AstroData {
   planets: Points
   cusps: number[]
 }
 
 /**
-   * Radix charts.
-   *
-   * @class
-   * @public
-   * @constructor
-    * @param {this.settings.SVG} paper
-   * @param {int} cx
-   * @param {int} cy
-   * @param {int} radius
-   * @param {Object} data
-   */
+ * Radix charts.
+ *
+ * @class
+ * @public
+ * @constructor
+ * @param {this.settings.SVG} paper
+ * @param {int} cx
+ * @param {int} cy
+ * @param {int} radius
+ * @param {Object} data
+ */
 class Radix {
   settings: Settings
   data: AstroData
@@ -48,6 +58,7 @@ class Radix {
   shift: number
   universe: Element
   context: this
+
   constructor(paper: SVG, cx: number, cy: number, radius: number, data: AstroData, settings: Settings) {
     this.settings = settings
     // Validate data
@@ -116,8 +127,8 @@ class Radix {
       const segment = this.paper.segment(this.cx, this.cy, this.radius, start, start + step, this.radius - this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO)
       segment.setAttribute('fill', this.settings.STROKE_ONLY ? 'none' : this.settings.COLORS_SIGNS[i])
       segment.setAttribute('id', this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_SIGNS + '-' + i)
-      segment.setAttribute('stroke', this.settings.STROKE_ONLY ? this.settings.CIRCLE_COLOR : 'none')
-      segment.setAttribute('stroke-width', this.settings.STROKE_ONLY ? '1' : '0')
+      segment.setAttribute('stroke', '#ffffff')
+      segment.setAttribute('stroke-width', (this.settings.STROKE_ONLY || this.settings.SIGNS_DIVISOR) ? '1' : '0')
       wrapper.appendChild(segment)
 
       start += step
@@ -126,7 +137,11 @@ class Radix {
     // signs
     for (let i = 0, step = 30, start = 15 + this.shift, len = this.settings.SYMBOL_SIGNS.length; i < len; i++) {
       const position = getPointPosition(this.cx, this.cy, this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO) / 2, start, this.settings)
-      wrapper.appendChild(this.paper.getSymbol(this.settings.SYMBOL_SIGNS[i], position.x, position.y))
+      const sign = this.paper.getSymbol(this.settings.SYMBOL_SIGNS[i], position.x, position.y)
+      // sing set color to white
+      sign.setAttribute('stroke', '#ffffff')
+      wrapper.appendChild(sign)
+      // wrapper.appendChild(this.paper.text(this.settings.SYMBOL_SIGNS[i], position.x,position.y,'16','#000'))
       start += step
     }
   }
@@ -142,18 +157,32 @@ class Radix {
     const universe = this.universe
     const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_POINTS, this.paper.root.id)
 
-    const gap = this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.radius / this.settings.INDOOR_CIRCLE_RADIUS_RATIO)
-    const step = (gap - 2 * (this.settings.PADDING * this.settings.SYMBOL_SCALE)) / Object.keys(this.data.planets).length
+    // const gap = this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.radius / this.settings.INDOOR_CIRCLE_RADIUS_RATIO)
+    // const step = (gap - 2 * (this.settings.PADDING * this.settings.SYMBOL_SCALE)) / Object.keys(this.data.planets).length
 
-    const pointerRadius = this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.rulerRadius)
+    const rulerRadius = this.settings.SHOW_RULER ? this.rulerRadius : 0
+    // ternary condition to get 0 if ruler is not shown
+    const pointerRadius = this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO)
+    // const pointerRadius = this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.rulerRadius)
     let startPosition
     let endPosition
 
     for (const planet in this.data.planets) {
       if (this.data.planets.hasOwnProperty(planet)) {
         const position = getPointPosition(this.cx, this.cy, this.pointRadius, this.data.planets[planet][0] + this.shift, this.settings)
-        const point = { name: planet, x: position.x, y: position.y, r: (this.settings.COLLISION_RADIUS * this.settings.SYMBOL_SCALE), angle: this.data.planets[planet][0] + this.shift, pointer: this.data.planets[planet][0] + this.shift }
-        this.locatedPoints = assemble(this.locatedPoints, point, { cx: this.cx, cy: this.cy, r: this.pointRadius }, this.settings)
+        const point = {
+          name: planet,
+          x: position.x,
+          y: position.y,
+          r: (this.settings.COLLISION_RADIUS * this.settings.SYMBOL_SCALE),
+          angle: this.data.planets[planet][0] + this.shift,
+          pointer: this.data.planets[planet][0] + this.shift
+        }
+        this.locatedPoints = assemble(this.locatedPoints, point, {
+          cx: this.cx,
+          cy: this.cy,
+          r: this.pointRadius
+        }, this.settings)
       }
     }
 
@@ -162,8 +191,9 @@ class Radix {
 
     this.locatedPoints.forEach(function (point: LocatedPoint) {
       // draw pointer
+      console.log(this.rulerRadius)
       startPosition = getPointPosition(this.cx, this.cy, pointerRadius, this.data.planets[point.name][0] + this.shift, this.settings)
-      endPosition = getPointPosition(this.cx, this.cy, pointerRadius - this.rulerRadius / 2, this.data.planets[point.name][0] + this.shift, this.settings)
+      endPosition = getPointPosition(this.cx, this.cy, pointerRadius - this.settings.PLANET_TICK_LENGTH, this.data.planets[point.name][0] + this.shift, this.settings)
       const pointer = this.paper.line(startPosition.x, startPosition.y, endPosition.x, endPosition.y)
       pointer.setAttribute('stroke', this.settings.CIRCLE_COLOR)
       pointer.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE))
@@ -196,7 +226,10 @@ class Radix {
       }
 
       if (this.settings.SHOW_DIGNITIES_TEXT)
-        textsToShow = textsToShow.concat(zodiac.getDignities({ name: point.name, position: this.data.planets[point.name][0] }, this.settings.DIGNITIES_EXACT_EXALTATION_DEFAULT).join(','))
+        textsToShow = textsToShow.concat(zodiac.getDignities({
+          name: point.name,
+          position: this.data.planets[point.name][0]
+        }, this.settings.DIGNITIES_EXACT_EXALTATION_DEFAULT).join(','))
 
       const pointDescriptions = getDescriptionPosition(point, textsToShow, this.settings)
       pointDescriptions.forEach(function (dsc) {
@@ -267,6 +300,9 @@ class Radix {
    * Draw cusps
    */
   drawCusps(): void {
+    /**
+     *
+     */
     if (this.data.cusps == null) {
       return
     }
@@ -283,6 +319,9 @@ class Radix {
     const MC = 9
     const mainAxis = [AS, IC, DC, MC]
 
+    if (!this.settings.SHOW_RULER) {
+      this.rulerRadius = 0
+    }
     // Cusps
     for (let i = 0, ln = this.data.cusps.length; i < ln; i++) {
       // Draws a dashed line when an point is in the way
@@ -325,10 +364,11 @@ class Radix {
    * @param{Array<Object> | null} customAspects - posible custom aspects to draw;
    */
   aspects(customAspects?: FormedAspect[] | null): Radix {
+
     const aspectsList = customAspects != null && Array.isArray(customAspects)
       ? customAspects
       : new AspectCalculator(this.toPoints).radix(this.data.planets)
-
+    console.log('aspectsList', aspectsList)
     const universe = this.universe
     const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_ASPECTS, this.paper.root.id)
 
@@ -346,7 +386,10 @@ class Radix {
         const line = this.paper.line(startPoint.x, startPoint.y, endPoint.x, endPoint.y)
         line.setAttribute('stroke', this.settings.STROKE_ONLY ? this.settings.LINE_COLOR : aspectsList[i].aspect.color)
         line.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE).toString())
+        // print dashed button
 
+
+        line.setAttribute('stroke-dasharray', aspectsList[i].aspect.lineStyle)
         line.setAttribute('data-name', aspectsList[i].aspect.name)
         line.setAttribute('data-degree', aspectsList[i].aspect.degree.toString())
         line.setAttribute('data-point', aspectsList[i].point.name)
@@ -376,23 +419,25 @@ class Radix {
   }
 
   drawRuler(): void {
-    const universe = this.universe
-    const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_RULER, this.paper.root.id)
+    if (this.settings.SHOW_RULER) {
+      const universe = this.universe
+      const wrapper = getEmptyWrapper(universe, this.paper.root.id + '-' + this.settings.ID_RADIX + '-' + this.settings.ID_RULER, this.paper.root.id)
 
-    const startRadius = (this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.rulerRadius))
-    const rays = getRulerPositions(this.cx, this.cy, startRadius, startRadius + this.rulerRadius, this.shift, this.settings)
+      const startRadius = (this.radius - (this.radius / this.settings.INNER_CIRCLE_RADIUS_RATIO + this.rulerRadius))
+      const rays = getRulerPositions(this.cx, this.cy, startRadius, startRadius + this.rulerRadius, this.shift, this.settings)
 
-    rays.forEach(function (ray) {
-      const line = this.paper.line(ray.startX, ray.startY, ray.endX, ray.endY)
-      line.setAttribute('stroke', this.settings.CIRCLE_COLOR)
-      line.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE))
-      wrapper.appendChild(line)
-    }, this)
+      rays.forEach(function (ray) {
+        const line = this.paper.line(ray.startX, ray.startY, ray.endX, ray.endY)
+        line.setAttribute('stroke', this.settings.CIRCLE_COLOR)
+        line.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE))
+        wrapper.appendChild(line)
+      }, this)
 
-    const circle = this.paper.circle(this.cx, this.cy, startRadius)
-    circle.setAttribute('stroke', this.settings.CIRCLE_COLOR)
-    circle.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE).toString())
-    wrapper.appendChild(circle)
+      const circle = this.paper.circle(this.cx, this.cy, startRadius)
+      circle.setAttribute('stroke', this.settings.CIRCLE_COLOR)
+      circle.setAttribute('stroke-width', (this.settings.CUSPS_STROKE * this.settings.SYMBOL_SCALE).toString())
+      wrapper.appendChild(circle)
+    }
   }
 
   /**

@@ -3,6 +3,7 @@ export interface AspectData {
     degree: number;
     orbit: number;
     color: string;
+    lineStyle: string;
 }
 export type Aspect = Record<string, AspectData>;
 export interface Dignity {
@@ -113,6 +114,9 @@ export interface Settings {
     DIGNITIES_EXACT_EXALTATION_DEFAULT: Dignity[];
     ANIMATION_CUSPS_ROTATION_SPEED: number;
     DEBUG: boolean;
+    SHOW_RULER: boolean;
+    PLANET_TICK_LENGTH: number;
+    SIGNS_DIVISOR: boolean;
 }
 declare const default_settings: Settings;
 export default default_settings;

@@ -1,9 +1,10 @@
-import default_settings from './settings' 
-import type { Settings } from './settings'
+import type {Settings} from './settings'
+import default_settings from './settings'
+import type {AstroData} from './radix'
 import Radix from './radix'
-import type { AstroData } from './radix'
 import SVG from './svg'
-import { getPointPosition } from './utils'
+import {getPointPosition} from './utils'
+
 /**
  * Displays astrology charts.
  *
@@ -22,10 +23,11 @@ class Chart {
   cy: number
   radius: number
   settings: Settings
-  constructor (elementId: string, width: number, height: number, settings?: Partial<Settings>) {
+
+  constructor(elementId: string, width: number, height: number, settings?: Partial<Settings>) {
     const chartSettings = default_settings
     if (settings != null) {
-      Object.assign(chartSettings, settings)
+      Object.assign(chartSettings, default_settings)
       if (!('COLORS_SIGNS' in settings)) chartSettings.COLORS_SIGNS = [default_settings.COLOR_ARIES, default_settings.COLOR_TAURUS, default_settings.COLOR_GEMINI, default_settings.COLOR_CANCER, default_settings.COLOR_LEO, default_settings.COLOR_VIRGO, default_settings.COLOR_LIBRA, default_settings.COLOR_SCORPIO, default_settings.COLOR_SAGITTARIUS, default_settings.COLOR_CAPRICORN, default_settings.COLOR_AQUARIUS, default_settings.COLOR_PISCES]
     }
 
@@ -43,25 +45,25 @@ class Chart {
   }
 
   /**
- * Display radix horoscope
- *
- * @param {Object} data
- * @example
- *  {
- *    "points":{"Moon":[0], "Sun":[30],  ... },
- *    "cusps":[300, 340, 30, 60, 75, 90, 116, 172, 210, 236, 250, 274]
- *  }
- *
- * @return {Radix} radix
- */
-  radix (data: AstroData): Radix {
+   * Display radix horoscope
+   *
+   * @param {Object} data
+   * @example
+   *  {
+   *    "points":{"Moon":[0], "Sun":[30],  ... },
+   *    "cusps":[300, 340, 30, 60, 75, 90, 116, 172, 210, 236, 250, 274]
+   *  }
+   *
+   * @return {Radix} radix
+   */
+  radix(data: AstroData): Radix {
     const radix = new Radix(this.paper, this.cx, this.cy, this.radius, data, this.settings)
 
     radix.drawBg()
     radix.drawUniverse()
     radix.drawRuler()
     radix.drawPoints()
-    radix.drawCusps()
+    // radix.drawCusps()
     radix.drawAxis()
     radix.drawCircles()
 
@@ -73,7 +75,7 @@ class Chart {
    *
    * @param {int} factor
    */
-  scale (factor: number): void {
+  scale(factor: number): void {
     this.paper.root.setAttribute('transform', 'translate(' + (-this.cx * (factor - 1)) + ',' + (-this.cy * (factor - 1)) + ') scale(' + factor + ')')
   }
 
@@ -82,7 +84,7 @@ class Chart {
    * For debug only.
    *
    */
-  calibrate (): Chart {
+  calibrate(): Chart {
     let positions
     let circle
     let line

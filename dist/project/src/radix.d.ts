@@ -17,17 +17,17 @@ export interface AstroData {
     cusps: number[];
 }
 /**
-   * Radix charts.
-   *
-   * @class
-   * @public
-   * @constructor
-    * @param {this.settings.SVG} paper
-   * @param {int} cx
-   * @param {int} cy
-   * @param {int} radius
-   * @param {Object} data
-   */
+ * Radix charts.
+ *
+ * @class
+ * @public
+ * @constructor
+ * @param {this.settings.SVG} paper
+ * @param {int} cx
+ * @param {int} cy
+ * @param {int} radius
+ * @param {Object} data
+ */
 declare class Radix {
     settings: Settings;
     data: AstroData;

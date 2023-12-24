@@ -1,6 +1,6 @@
 import type SVG from './svg'
 
-export interface AspectData { degree: number; orbit: number; color: string }
+export interface AspectData { degree: number; orbit: number; color: string; lineStyle: string }
 export type Aspect = Record<string, AspectData>
 export interface Dignity {
   name: string
@@ -111,6 +111,9 @@ export interface Settings {
   DIGNITIES_EXACT_EXALTATION_DEFAULT: Dignity[]
   ANIMATION_CUSPS_ROTATION_SPEED: number
   DEBUG: boolean
+  SHOW_RULER: boolean
+  PLANET_TICK_LENGTH: number
+  SIGNS_DIVISOR: boolean
 }
 
 const settings: Settings = {
@@ -131,7 +134,7 @@ const settings: Settings = {
   POINTS_STROKE: 1.8,
 
   // Font color of signs symbols
-  SIGNS_COLOR: '#000',
+  SIGNS_COLOR: '#fff',
 
   // Signs strength of lines
   SIGNS_STROKE: 1.5,
@@ -185,13 +188,13 @@ const settings: Settings = {
   LINE_COLOR: '#333',
 
   // radius / INDOOR_CIRCLE_RADIUS_RATIO
-  INDOOR_CIRCLE_RADIUS_RATIO: 2,
+  INDOOR_CIRCLE_RADIUS_RATIO: 1.4,
 
   // radius - radius/INNER_CIRCLE_RADIUS_RATIO
-  INNER_CIRCLE_RADIUS_RATIO: 8,
+  INNER_CIRCLE_RADIUS_RATIO: 7,
 
   // ( radius / INNER_CIRCLE_RADIUS_RATIO ) / RULER_RADIUS
-  RULER_RADIUS: 4,
+  RULER_RADIUS: 100,
 
   // Points
   SYMBOL_SUN: 'Sun',
@@ -265,7 +268,8 @@ const settings: Settings = {
   COLOR_CAPRICORN: '#8B4513',
   COLOR_AQUARIUS: '#87CEEB',
   COLOR_PISCES: '#27AE60',
-  COLORS_SIGNS: ['#FF4500', '#8B4513', '#87CEEB', '#27AE60', '#FF4500', '#8B4513', '#87CEEB', '#27AE60', '#FF4500', '#8B4513', '#87CEEB', '#27AE60'],
+  // COLORS_SIGNS: ['#FF4500', '#8B4513', '#87CEEB', '#27AE60', '#FF4500', '#8B4513', '#87CEEB', '#27AE60', '#FF4500', '#8B4513', '#87CEEB', '#27AE60'],
+  COLORS_SIGNS: ['#000', '#000', '#000', '#000', '#000', '#000', '#000', '#000', '#000', '#000', '#000', '#000'],
 
   CUSTOM_SYMBOL_FN: null,
 
@@ -283,10 +287,10 @@ const settings: Settings = {
 
   // Aspects
   ASPECTS: {
-    conjunction: { degree: 0, orbit: 10, color: 'transparent' },
-    square: { degree: 90, orbit: 8, color: '#FF4500' },
-    trine: { degree: 120, orbit: 8, color: '#27AE60' },
-    opposition: { degree: 180, orbit: 10, color: '#27AE60' }
+    conjunction: { degree: 0, orbit: 10, color: 'transparent', lineStyle: 'dashed'},
+    square: { degree: 90, orbit: 8, color: '#FF4500', lineStyle: 'dashed' },
+    trine: { degree: 120, orbit: 8, color: '#27AE60', lineStyle: 'dashed' },
+    opposition: { degree: 180, orbit: 10, color: '#27AE60', lineStyle: 'dashed' }
   },
 
   // Dignities
@@ -306,13 +310,19 @@ const settings: Settings = {
     { name: 'Mars', position: 298, orbit: 2 }, // 28 Capricorn
     { name: 'Jupiter', position: 105, orbit: 2 }, // 15 Cancer
     { name: 'Saturn', position: 201, orbit: 2 }, // 21 Libra
-    { name: 'NNode', position: 63, orbit: 2 } // 3 Geminy
+    { name: 'NNode', position: 63, orbit: 2 } // 3 Gemini
   ],
 
   // 0 - 4
   ANIMATION_CUSPS_ROTATION_SPEED: 2,
 
-  DEBUG: false
+  DEBUG: false,
+
+  SHOW_RULER: false,
+
+  PLANET_TICK_LENGTH: 7,
+
+  SIGNS_DIVISOR: true
 }
 
 const default_settings = settings

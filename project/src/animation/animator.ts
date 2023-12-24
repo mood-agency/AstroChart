@@ -1,20 +1,21 @@
-import type { AstroData } from '../radix'
-import type { Settings } from '../settings'
+import type {AstroData} from '../radix'
+import type {Settings} from '../settings'
 import type Transit from '../transit'
-import { radiansToDegree } from '../utils'
+import {radiansToDegree} from '../utils'
 import Timer from './timer'
+
 /**
-   * Transit chart animator
-   *
-   * Animates the object on a circle.
-   *
-   * @class
-   * @public
-   * @constructor
-   * @param {Object} from, {"Sun":[12], "Moon":[60]}
-   * @param {Object} to, {"Sun":[30], "Moon":[180]}
-   * @param {Object} settings, {cx:100, cy:100, radius:200, prefix:"astro-chart-"}
-   */
+ * Transit chart animator
+ *
+ * Animates the object on a circle.
+ *
+ * @class
+ * @public
+ * @constructor
+ * @param {Object} from, {"Sun":[12], "Moon":[60]}
+ * @param {Object} to, {"Sun":[30], "Moon":[180]}
+ * @param {Object} settings, {cx:100, cy:100, radius:200, prefix:"astro-chart-"}
+ */
 class Animator {
   transit: Transit
   isReverse: boolean
@@ -28,7 +29,8 @@ class Animator {
   data: AstroData
   duration: number
   callback: () => void
-  constructor (transit: Transit, settings: Settings) {
+
+  constructor(transit: Transit, settings: Settings) {
     this.transit = transit
     this.isReverse = false
     this.rotation = 0
@@ -54,11 +56,11 @@ class Animator {
    * Animate objects
 
    * @param {Object} data, targetPositions
-    * @param {Integer} duration - seconds
-    * @param {boolean} isReverse
-    * @param {Function} callbck - start et the end of animation
+   * @param {Integer} duration - seconds
+   * @param {boolean} isReverse
+   * @param {Function} callbck - start et the end of animation
    */
-  animate (data: any, duration: number, isReverse: boolean, callback: () => void): void {
+  animate(data: any, duration: number, isReverse: boolean, callback: () => void): void {
     this.data = data
     this.duration = duration * 1000
     this.isReverse = isReverse || false
@@ -70,7 +72,7 @@ class Animator {
     this.timer.start()
   }
 
-  update (deltaTime?: number): void {
+  update(deltaTime?: number): void {
     deltaTime = deltaTime ?? 1
     this.timeSinceLoopStart += deltaTime
     if (this.timeSinceLoopStart >= this.duration) {
@@ -94,7 +96,7 @@ class Animator {
   /*
    * @private
    */
-  updateCusps (expectedNumberOfLoops: number): void {
+  updateCusps(expectedNumberOfLoops: number): void {
     const deg360 = radiansToDegree(2 * Math.PI)
     let targetCuspAngle = this.transit.data.cusps[0] - this.data.cusps[0]
 
@@ -135,7 +137,7 @@ class Animator {
   /*
    * @private
    */
-  updatePlanets (expectedNumberOfLoops: number): void {
+  updatePlanets(expectedNumberOfLoops: number): void {
     for (const planet in this.data.planets) {
       if (this.data.planets.hasOwnProperty(planet)) {
         const actualPlanetAngle: number = this.actualPlanetPos[planet][0]

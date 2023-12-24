@@ -1,6 +1,6 @@
+import type {Dignity, Settings} from './settings'
 import default_settings from './settings'
-import type { Dignity, Settings } from './settings'
-import { radiansToDegree } from './utils'
+import {radiansToDegree} from './utils'
 // Zodiac
 const SIGNS_ARIES = 1
 const SIGNS_TAURUS = 2
@@ -16,23 +16,24 @@ const SIGNS_AQUARIUS = 11
 const SIGNS_PISCES = 12
 
 /**
-   * Zodiac
-   *
-   * Gives the position of points in the zodiac.
-   * Position of point in the zodiac.
-   * Position of point in houses.
-   * Dignities of planets.
-   *
-   * @class
-   * @public
-   * @constructor
-   * @param {Array} cusps - cusprs in zodiac; [296, 350, 30, 56, 75, 94, 116, 170, 210, 236, 255, 274]
-   * @param {Object | null } settings
-   */
+ * Zodiac
+ *
+ * Gives the position of points in the zodiac.
+ * Position of point in the zodiac.
+ * Position of point in houses.
+ * Dignities of planets.
+ *
+ * @class
+ * @public
+ * @constructor
+ * @param {Array} cusps - cusprs in zodiac; [296, 350, 30, 56, 75, 94, 116, 170, 210, 236, 255, 274]
+ * @param {Object | null } settings
+ */
 class Zodiac {
   cusps: number[]
   settings: Settings
-  constructor (cusps: number[], settings?: Settings) {
+
+  constructor(cusps: number[], settings?: Settings) {
     if (cusps === null) {
       throw new Error('Param \'cusps\' must not be empty.')
     }
@@ -52,7 +53,7 @@ class Zodiac {
    * @param {double} point - angle of point in circle
    * @return { \[1-9] | 1[0-2]\ }
    */
-  getSign (point: number): number {
+  getSign(point: number): number {
     const angle = point % radiansToDegree(2 * Math.PI)
     return Math.floor((angle / 30) + 1)
   }
@@ -60,10 +61,10 @@ class Zodiac {
   /**
    * Is retrograde
    *
-    * @param {double} speed
-    * @return {boolean}
+   * @param {double} speed
+   * @return {boolean}
    */
-  isRetrograde (speed: number): boolean {
+  isRetrograde(speed: number): boolean {
     return speed < 0
   }
 
@@ -74,7 +75,7 @@ class Zodiac {
    * @param {double} point - angle of point in circle
    * @return { \[1-9] | 1[0-2]\ }
    */
-  getHouseNumber (point: number): number {
+  getHouseNumber(point: number): number {
     const angle = point % radiansToDegree(2 * Math.PI)
 
     for (let i = 0, ln = this.cusps.length; i < ln; i++) {
@@ -94,19 +95,19 @@ class Zodiac {
   }
 
   /**
-    * Calculate dignities of planet
-    *
-    * r - Rulership
-    * d - Detriment
-    * e - Exaltation
-    * E - Exalatation - Exact exaltation
-    * f - Fall
-    *
-     * @param {Object} planet, { name:"Sun", position:60.2 }
-     * @param {Array<Object> | null } exactExaltation - list of named angles, [{ name:"Sun", position:278, orbit:2 }, { name:"Moon", position:3, , orbit:2 }]
-     * @return {Array<String>}
-    */
-  getDignities (planet: { name: string; position: number }, exactExaltation?: Dignity[]): string[] {
+   * Calculate dignities of planet
+   *
+   * r - Rulership
+   * d - Detriment
+   * e - Exaltation
+   * E - Exalatation - Exact exaltation
+   * f - Fall
+   *
+   * @param {Object} planet, { name:"Sun", position:60.2 }
+   * @param {Array<Object> | null } exactExaltation - list of named angles, [{ name:"Sun", position:278, orbit:2 }, { name:"Moon", position:3, , orbit:2 }]
+   * @return {Array<String>}
+   */
+  getDignities(planet: { name: string; position: number }, exactExaltation?: Dignity[]): string[] {
     if (!(planet && planet.name && planet.position != null)) {
       return []
     }
@@ -297,7 +298,7 @@ class Zodiac {
    * @param {Double} d
    * @return {String}
    */
-  toDMS (d: number): string {
+  toDMS(d: number): string {
     d += 0.5 / 3600.0 / 10000.0 // round to 1/1000 of a second
     const deg = parseInt(d.toString(), 10)
     d = (d - deg) * 60
@@ -316,7 +317,7 @@ class Zodiac {
      * @param {Integer} orbit
      * @return {boolean}
     */
-  hasConjunction (planetPosition: number, pointPosition: number, orbit: number): boolean {
+  hasConjunction(planetPosition: number, pointPosition: number, orbit: number): boolean {
     let result = false
 
     const minOrbit = (pointPosition - orbit / 2) < 0

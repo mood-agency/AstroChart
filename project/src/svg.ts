@@ -693,16 +693,15 @@ class SVG {
     return wrapper
   }
 
-  /*
- * Aries symbol path
- * @private
- *
- * @param {int} x
- * @param {int} y
- *
- * @return {SVGPathElement} path
- */
+  /**
+   * Creates an Aries symbol element centered at the given coordinates.
+   *
+   * @param {number} x - The x-coordinate of the symbol's center.
+   * @param {number} y - The y-coordinate of the symbol's center.
+   * @return {Element} - The Aries symbol element.
+   */
   aries(x: number, y: number): Element {
+
     // center symbol
     const xShift = -9 // px
     const yShift = -2 // px

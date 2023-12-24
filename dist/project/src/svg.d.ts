@@ -71,6 +71,13 @@ declare class SVG {
     nnode(x: number, y: number): Element;
     snode(x: number, y: number): Element;
     fortune(x: number, y: number): Element;
+    /**
+     * Creates an Aries symbol element centered at the given coordinates.
+     *
+     * @param {number} x - The x-coordinate of the symbol's center.
+     * @param {number} y - The y-coordinate of the symbol's center.
+     * @return {Element} - The Aries symbol element.
+     */
     aries(x: number, y: number): Element;
     taurus(x: number, y: number): Element;
     gemini(x: number, y: number): Element;

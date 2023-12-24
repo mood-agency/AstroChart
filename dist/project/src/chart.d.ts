@@ -1,6 +1,6 @@
 import type { Settings } from './settings';
-import Radix from './radix';
 import type { AstroData } from './radix';
+import Radix from './radix';
 import SVG from './svg';
 /**
  * Displays astrology charts.
@@ -21,17 +21,17 @@ declare class Chart {
     settings: Settings;
     constructor(elementId: string, width: number, height: number, settings?: Partial<Settings>);
     /**
-   * Display radix horoscope
-   *
-   * @param {Object} data
-   * @example
-   *  {
-   *    "points":{"Moon":[0], "Sun":[30],  ... },
-   *    "cusps":[300, 340, 30, 60, 75, 90, 116, 172, 210, 236, 250, 274]
-   *  }
-   *
-   * @return {Radix} radix
-   */
+     * Display radix horoscope
+     *
+     * @param {Object} data
+     * @example
+     *  {
+     *    "points":{"Moon":[0], "Sun":[30],  ... },
+     *    "cusps":[300, 340, 30, 60, 75, 90, 116, 172, 210, 236, 250, 274]
+     *  }
+     *
+     * @return {Radix} radix
+     */
     radix(data: AstroData): Radix;
     /**
      * Scale chart

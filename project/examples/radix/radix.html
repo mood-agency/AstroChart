@@ -15,13 +15,13 @@
         <script src="../../../dist/astrochart.js"></script>
         <script type="text/javascript"> 
         
-        	var data = {
+        	let data = {
 				"planets":{"Lilith":[18], "Chiron":[18], "Pluto":[63], "Neptune":[110, 0.2], "Uranus":[318], "Saturn":[201, -0.2], "Jupiter":[192], "Mars":[210], "Moon":[268], "Sun":[281], "Mercury":[312], "Venus":[330], "NNode":[2], "SNode":[182], "Fortune":[35]},
 				"cusps":[296, 350, 30, 56, 75, 94, 116, 170, 210, 236, 255, 274]			
 			};
 												      
         	window.onload = function () {            	     
-				var radix = new astrochart.Chart('paper', 600, 600).radix( data );
+				const radix = new astrochart.Chart('paper', 600, 600).radix( data );
 								
 				// Aspect calculation
 				// default is planet to planet, but it is possible add some important points:				
